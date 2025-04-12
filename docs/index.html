@@ -145,7 +145,7 @@
         const tr = document.createElement("tr");
         ["연도", "전형", "모집", "경쟁률", "성적1", "성적2", "성적산출기준_성적1", "성적산출기준_성적2"].forEach(field => {
           const td = document.createElement("td");
-          td.textContent = r[field];
+          td.textContent = r[field] || "";
           tr.appendChild(td);
         });
         tbody.appendChild(tr);
