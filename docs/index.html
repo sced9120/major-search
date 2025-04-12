@@ -51,7 +51,7 @@
         <thead>
           <tr>
             <th>연도</th><th>전형</th><th>모집</th><th>경쟁률</th>
-            <th>성적1</th><th>성적2</th><th>기준1</th><th>기준2</th>
+            <th>성적1</th><th>성적2</th><th>성적산출기준_성적1</th><th>성적산출기준_성적2</th>
           </tr>
         </thead>
         <tbody id="modalTableBody"></tbody>
@@ -143,7 +143,7 @@
       tbody.innerHTML = "";
       rows.forEach(r => {
         const tr = document.createElement("tr");
-        ["연도", "전형", "모집", "경쟁률", "성적1", "성적2", "기준1", "기준2"].forEach(field => {
+        ["연도", "전형", "모집", "경쟁률", "성적1", "성적2", "성적산출기준_성적1", "성적산출기준_성적2"].forEach(field => {
           const td = document.createElement("td");
           td.textContent = r[field];
           tr.appendChild(td);
