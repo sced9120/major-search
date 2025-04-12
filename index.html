@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>입시정보 검색</title>
+  <style>
+    /* 기존 스타일 그대로 유지 */
+    html, body { font-family: 'Noto Sans KR', sans-serif; padding: 1rem; margin: 0; background: #f9f9f9; font-size: 1.2rem; }
+    input, select, button { font-size: 1.2rem; padding: 0.75rem; margin-bottom: 0.75rem; width: 100%; box-sizing: border-box; }
+    button { background-color: #007bff; color: white; border: none; cursor: pointer; }
+    button:hover { background-color: #0056b3; }
+    #results button { display: block; color: white; border: none; margin: 5px 0; padding: 10px; text-align: left; font-size: 1.1rem; width: 100%; }
+    #loading { display: none; font-size: 1.2rem; color: #007bff; }
+    .score-input { margin-top: 1rem; }
+    .score-input input { width: 100px; text-align: center; font-size: 1.2rem; }
+    .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100vw; height: 100vh; overflow: auto; background-color: rgba(0,0,0,0.5); }
+    .modal-content { background-color: white; margin: 10% auto; padding: 20px; width: 95%; max-width: 600px; border-radius: 10px; font-size: 1rem; }
+    .modal-close { float: right; font-size: 1.5rem; cursor: pointer; }
+    table.modal-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1rem; }
+    table.modal-table th, table.modal-table td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+  </style>
+</head>
+<body>
+  <h2>대학/학과 검색</h2>
+  <input type="text" id="searchBox" placeholder="대학명 또는 학과명 입력" list="suggestions"/>
+  <datalist id="suggestions"></datalist>
+
+  <select id="yearFilter">
+    <option value="">전체 연도</option>
+    <option value="2025">2025</option>
+    <option value="2024">2024</option>
+    <option value="2023">2023</option>
+    <option value="2022">2022</option>
+  </select>
+
+  <button onclick="triggerSearch()">검색</button>
+
+  <div class="score-input">
+    <label>내 성적: <input type="number" id="myScore" step="0.01" /></label>
+  </div>
+
+  <div id="loading">검색 중입니다...</div>
+  <div id="results"></div>
+
+  <div id="modal" class="modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <span class="modal-close" onclick="closeModal()">&times;</span>
+      <div id="modalTitle"></div>
+      <table class="modal-table">
+        <thead>
+          <tr>
+            <th>연도</th><th>전형</th><th>모집</th><th>경쟁률</th>
+            <th>성적1</th><th>성적2</th><th>기준1</th><th>기준2</th>
+          </tr>
+        </thead>
+        <tbody id="modalTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let rawData = [];
+    let readyToSearch = false;
+
+    function loadData() {
+      fetch("data/major_data.json")
+        .then(res => res.json())
+        .then(data => {
+          rawData = data;
+          readyToSearch = true;
+
+          const suggestions = [...new Set(rawData.map(r => `${r["대학명"]} ${r["학과명"]}`))];
+          const datalist = document.getElementById("suggestions");
+          datalist.innerHTML = "";
+          suggestions.forEach(text => {
+            const option = document.createElement("option");
+            option.value = text;
+            datalist.appendChild(option);
+          });
+        });
+    }
+
+    function triggerSearch() {
+      if (!readyToSearch || rawData.length === 0) {
+        alert("데이터가 아직 로딩되지 않았습니다.");
+        return;
+      }
+
+      const keyword = document.getElementById("searchBox").value.toLowerCase().trim();
+      const year = document.getElementById("yearFilter").value;
+      const myScore = parseFloat(document.getElementById("myScore").value);
+      document.getElementById("loading").style.display = 'block';
+
+      const resultDiv = document.getElementById("results");
+      resultDiv.innerHTML = "";
+
+      setTimeout(() => {
+        const grouped = {};
+        rawData.forEach(row => {
+          const school = row["대학명"].toLowerCase();
+          const major = row["학과명"].toLowerCase();
+          const key = row["대학명"] + " - " + row["학과명"];
+          if ((school + " " + major).includes(keyword)) {
+            if (!year || row["연도"] == year) {
+              if (!grouped[key]) grouped[key] = [];
+              grouped[key].push(row);
+            }
+          }
+        });
+
+        Object.entries(grouped).forEach(([key, rows]) => {
+          const avg1 = average(rows.map(r => parseFloat(r["성적1"])));
+          const avg2 = average(rows.map(r => parseFloat(r["성적2"])));
+
+          let color = "#aaa";
+          if (!isNaN(myScore)) {
+            if (myScore < avg1) color = "#007bff";
+            else if (myScore <= avg2) color = "#28a745";
+            else if (myScore <= avg2 + 0.5) color = "#ffc107";
+          }
+
+          const btn = document.createElement("button");
+          btn.textContent = key;
+          btn.style.backgroundColor = color;
+          btn.onclick = () => showModal(key, rows);
+          resultDiv.appendChild(btn);
+        });
+
+        document.getElementById("loading").style.display = 'none';
+      }, 200);
+    }
+
+    function average(arr) {
+      const nums = arr.filter(n => !isNaN(n));
+      if (nums.length === 0) return NaN;
+      return nums.reduce((a, b) => a + b, 0) / nums.length;
+    }
+
+    function showModal(title, rows) {
+      document.getElementById("modalTitle").textContent = title;
+      const tbody = document.getElementById("modalTableBody");
+      tbody.innerHTML = "";
+      rows.forEach(r => {
+        const tr = document.createElement("tr");
+        ["연도", "전형", "모집", "경쟁률", "성적1", "성적2", "기준1", "기준2"].forEach(field => {
+          const td = document.createElement("td");
+          td.textContent = r[field];
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+      document.getElementById("modal").style.display = "block";
+    }
+
+    function closeModal(event) {
+      if (!event || event.target.id === "modal") {
+        document.getElementById("modal").style.display = "none";
+      }
+    }
+
+    window.onload = loadData;
+  </script>
+</body>
+</html>
