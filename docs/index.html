@@ -101,11 +101,12 @@
           const school = (row["대학"] || "").toLowerCase();
           const major = (row["학과"] || "").toLowerCase();
           const key = row["대학"] + " - " + row["학과"];
-          if ((school + " " + major).includes(keyword)) {
-            if (!year || row["연도"] == year) {
-              if (!grouped[key]) grouped[key] = [];
-              grouped[key].push(row);
-            }
+          const matchKeyword = keyword === "" || (school + " " + major).includes(keyword);
+          const matchYear = !year || row["연도"] == year;
+          
+          if (matchKeyword && matchYear) {
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(row);
           }
         });
 
