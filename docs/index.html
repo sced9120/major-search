@@ -98,8 +98,8 @@
       setTimeout(() => {
         const grouped = {};
         rawData.forEach(row => {
-          const school = row["대학"].toLowerCase();
-          const major = row["학과"].toLowerCase();
+          const school = (row["대학"] || "").toLowerCase();
+          const major = (row["학과"] || "").toLowerCase();
           const key = row["대학"] + " - " + row["학과"];
           if ((school + " " + major).includes(keyword)) {
             if (!year || row["연도"] == year) {
