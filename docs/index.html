@@ -130,14 +130,18 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
+      padding: 1rem;
     }
     #popupContent {
       background: white;
-      padding: 2rem;
+      padding: 1.5rem;
       max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
       border-radius: 10px;
       text-align: left;
       white-space: pre-line;
+      font-size: 1rem;
     }
 
     @media screen and (max-width: 600px) {
@@ -150,6 +154,12 @@
       .filter-row select,
       .filter-row button {
         width: 100%;
+      }
+
+      #popupContent {
+        width: 100%;
+        max-width: none;
+        font-size: 0.95rem;
       }
     }
   </style>
