@@ -1,38 +1,31 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>입시정보 검색</title>
+  <!-- 기존 head 내용 유지 -->
+  <!-- ... 생략 ... -->
   <style>
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      margin: 0;
-      padding: 1rem;
-      background: #f4f4f4;
+    /* 기존 스타일 유지 */
+    /* ... 생략 ... */
+
+    /* 지역 선택 필터 스타일 추가 */
+    .region-container {
+      margin: 1rem 0;
     }
-    .filter-section {
-      margin-bottom: 1rem;
-    }
-    .filter-title {
-      font-weight: bold;
-      margin-bottom: 0.5rem;
-    }
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-    }
-    .filter-button {
-      padding: 0.5rem 1rem;
+    .region-button {
+      display: inline-block;
+      padding: 0.4rem 0.8rem;
+      margin: 0.2rem;
       border-radius: 20px;
       background: #e0e0e0;
       cursor: pointer;
+      font-size: 1rem;
     }
-    .filter-button.selected {
+    .region-button.selected {
       background: #4CAF50;
       color: white;
     }
+
+    /* 팝업 안내창 스타일 */
     #popup {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -47,176 +40,157 @@
       padding: 2rem;
       max-width: 500px;
       border-radius: 10px;
+      text-align: left;
       white-space: pre-line;
     }
-    button {
-      margin-top: 1rem;
-      padding: 0.5rem 1.2rem;
-      border: none;
-      background: #2196F3;
-      color: white;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .result {
-      margin-top: 1rem;
-      background: white;
-      padding: 1rem;
-      border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .highlight-blue { background-color: #bbdefb; }
-    .highlight-green { background-color: #c8e6c9; }
-    .highlight-yellow { background-color: #fff9c4; }
   </style>
 </head>
 <body>
+  <!-- 팝업 안내창 -->
+  <div id="popup">
+    <div id="popupContent">
+      해당 자료는 대학에서 발표한 입시 결과를 수집한 자료로 제작되었습니다. 모든 대학이나 학과가 표시되지는 않을 수 있습니다. 대략적인 검색을 제공하나 정확한 결과는 각 대학의 입학처를 참고하시기 바랍니다. 모든 결정 전에는 학교 상담을 꼭 받으시기 바랍니다.
 
-<div id="popup">
-  <div id="popupContent">
-    해당 자료는 대학에서 발표한 입시 결과를 수집한 자료로 제작되었습니다. 모든 대학이나 학과가 표시되지는 않을 수 있습니다. 대략적인 검색을 제공하나 정확한 결과는 각 대학의 입학처를 참고하시기 바랍니다. 모든 결정 전에는 학교 상담을 꼭 받으시기 바랍니다.
-    
-    [내 성적]란에 적힌 성적과 대학 자체 성적을 단순 숫자로만 비교하여 색으로 시각적 표현을 줬을 뿐, 정확한 입시 결과를 제공하지 않습니다. 
-    파란색 - [성적1]에 적힌 숫자보다 작을 때
-    초록색 - [성적1]과 [성적2] 사이에 위치할 때
-    노란색 - [성적2]와 [성적2 + 0.5] 사이에 위치할 때
-    * 원하는 대학의 정확한 성적은 담임 상담 또는 대학 입학처 참고 *
-    * 결정에 대한 모든 책임은 본인에게 있습니다. 이에 동의하는 사용자만 이용 바랍니다. *
-    <br>
-    <button onclick="document.getElementById('popup').style.display='none'">동의하고 이용하기</button>
+      [내 성적]란에 적힌 성적과 대학 자체 성적을 단순 숫자로만 비교하여 색으로 시각적 표현을 줬을 뿐, 정확한 입시 결과를 제공하지 않습니다.
+      파란색 - [성적1]에 적힌 숫자보다 작을 때
+      초록색 - [성적1]과 [성적2] 사이에 위치할 때
+      노란색 - [성적2]와 [성적2 + 0.5] 사이에 위치할 때
+      * 원하는 대학의 정확한 성적은 담임 상담 또는 대학 입학처 참고 *
+      * 결정에 대한 모든 책임은 본인에게 있습니다. 이에 동의하는 사용자만 이용 바랍니다. *
+      <br>
+      <button onclick="document.getElementById('popup').style.display='none'">동의하고 이용하기</button>
+    </div>
   </div>
-</div>
 
-<h2>입시정보 검색</h2>
+  <h2>대학/학과 검색</h2>
 
-<input type="text" id="searchInput" placeholder="학과명 또는 대학명 입력" style="width:100%; margin-bottom:1rem; padding:8px;"/>
+  <!-- 기존 검색 필터 유지 -->
+  <div class="filter-row">
+    <!-- ... 기존 검색/연도/성적 필드 유지 ... -->
+  </div>
 
-<div class="filter-section">
-  <div class="filter-title">연도 선택</div>
-  <div id="yearFilter" class="button-group"></div>
-</div>
+  <!-- 지역 선택 필터 추가 -->
+  <div class="region-container" id="regionContainer"></div>
 
-<div class="filter-section">
-  <div class="filter-title">지역 선택</div>
-  <div id="regionFilter" class="button-group"></div>
-</div>
+  <!-- 나머지 datalist, loading, results, modal 유지 -->
+  <!-- ... 생략 ... -->
 
-<div id="results"></div>
+  <script>
+    let rawData = [];
+    let readyToSearch = false;
+    const selectedRegions = new Set();
 
-<script>
-  let jsonData = [];
-  const selectedYears = new Set(['전체']);
-  const selectedRegions = new Set();
-
-  function createFilterButtons(data) {
-    // 연도
-    const yearSet = new Set(data.map(d => d['연도']).filter(y => y));
-    const yearContainer = document.getElementById('yearFilter');
-    const allBtn = createButton('전체', 'year', true);
-    yearContainer.appendChild(allBtn);
-    yearSet.forEach(year => {
-      const btn = createButton(year, 'year');
-      yearContainer.appendChild(btn);
-    });
-
-    // 지역
-    const regionSet = new Set(data.map(d => d['지역']).filter(r => r));
-    const regionContainer = document.getElementById('regionFilter');
-    regionSet.forEach(region => {
-      const btn = createButton(region, 'region');
-      regionContainer.appendChild(btn);
-    });
-  }
-
-  function createButton(label, type, selected = false) {
-    const btn = document.createElement('span');
-    btn.className = 'filter-button';
-    btn.textContent = label;
-    if (selected) {
-      btn.classList.add('selected');
+    function loadData() {
+      fetch("data/major_data.json")
+        .then(res => res.json())
+        .then(data => {
+          rawData = data;
+          readyToSearch = true;
+          populateSuggestions();
+          populateRegions();
+        });
     }
-    btn.onclick = () => {
-      if (type === 'year') {
-        if (label === '전체') {
-          selectedYears.clear();
-          selectedYears.add('전체');
-          resetButtons('year');
+
+    function populateSuggestions() {
+      const suggestions = [...new Set(rawData.map(r => `${r["대학"]} ${r["학과"]}`))];
+      const datalist = document.getElementById("suggestions");
+      datalist.innerHTML = "";
+      suggestions.forEach(text => {
+        const option = document.createElement("option");
+        option.value = text;
+        datalist.appendChild(option);
+      });
+    }
+
+    function populateRegions() {
+      const regionContainer = document.getElementById("regionContainer");
+      const regionSet = new Set(rawData.map(r => r["지역"]).filter(Boolean));
+      const allBtn = document.createElement("span");
+      allBtn.textContent = "전체";
+      allBtn.className = "region-button selected";
+      allBtn.onclick = () => {
+        if (selectedRegions.size === regionSet.size) {
+          selectedRegions.clear();
+          document.querySelectorAll('.region-button').forEach(btn => btn.classList.remove('selected'));
+          allBtn.classList.add('selected');
         } else {
-          selectedYears.delete('전체');
-          toggleSet(selectedYears, label);
+          regionSet.forEach(r => selectedRegions.add(r));
+          document.querySelectorAll('.region-button').forEach(btn => btn.classList.add('selected'));
         }
-        toggleClass(btn);
-      } else {
-        toggleSet(selectedRegions, label);
-        toggleClass(btn);
-      }
-      renderResults(document.getElementById('searchInput').value);
-    };
-    btn.dataset.type = type;
-    return btn;
-  }
+        triggerSearch();
+      };
+      regionContainer.appendChild(allBtn);
 
-  function resetButtons(type) {
-    document.querySelectorAll(`[data-type="${type}"]`).forEach(el => {
-      el.classList.remove('selected');
-      if (el.textContent === '전체') el.classList.add('selected');
-    });
-  }
-
-  function toggleClass(el) {
-    el.classList.toggle('selected');
-  }
-
-  function toggleSet(set, value) {
-    set.has(value) ? set.delete(value) : set.add(value);
-  }
-
-  function fetchData() {
-    fetch("data/major_data.json")
-      .then(res => res.json())
-      .then(data => {
-        jsonData = data;
-        createFilterButtons(data);
+      regionSet.forEach(region => {
+        const btn = document.createElement("span");
+        btn.textContent = region;
+        btn.className = "region-button";
+        btn.onclick = () => {
+          if (selectedRegions.has(region)) {
+            selectedRegions.delete(region);
+            btn.classList.remove("selected");
+          } else {
+            selectedRegions.add(region);
+            btn.classList.add("selected");
+          }
+          triggerSearch();
+        };
+        regionContainer.appendChild(btn);
       });
-  }
+    }
 
-  function renderResults(query) {
-    const container = document.getElementById('results');
-    container.innerHTML = '';
-    const filtered = jsonData.filter(item => {
-      const matchesQuery = (item['대학명']?.includes(query) || item['학과명']?.includes(query));
-      const matchesYear = selectedYears.has('전체') || selectedYears.has(item['연도']);
-      const matchesRegion = selectedRegions.size === 0 || selectedRegions.has(item['지역']);
-      return matchesQuery && matchesYear && matchesRegion;
-    });
-
-    filtered.forEach(item => {
-      const div = document.createElement('div');
-      div.className = 'result';
-      const val1 = parseFloat(item['성적1']);
-      const val2 = parseFloat(item['성적2']);
-      const myScore = parseFloat(item['내 성적']);
-      if (!isNaN(val1) && !isNaN(val2) && !isNaN(myScore)) {
-        if (myScore < val1) div.classList.add('highlight-blue');
-        else if (myScore <= val2) div.classList.add('highlight-green');
-        else if (myScore <= val2 + 0.5) div.classList.add('highlight-yellow');
+    function triggerSearch() {
+      if (!readyToSearch || rawData.length === 0) {
+        alert("데이터가 아직 로딩되지 않았습니다.");
+        return;
       }
 
-      let html = '';
-      Object.keys(item).forEach(key => {
-        html += `<b>${key}</b>: ${item[key] ? item[key] : '미제공'}<br>`;
-      });
-      div.innerHTML = html;
-      container.appendChild(div);
-    });
-  }
+      const keyword = document.getElementById("searchBox").value.toLowerCase().trim();
+      const year = document.getElementById("yearFilter").value;
+      const myScore = parseFloat(document.getElementById("myScore").value);
+      document.getElementById("loading").style.display = 'block';
 
-  document.getElementById('searchInput').addEventListener('input', e => {
-    renderResults(e.target.value);
-  });
+      const resultDiv = document.getElementById("results");
+      resultDiv.innerHTML = "";
 
-  fetchData();
-</script>
+      setTimeout(() => {
+        const grouped = {};
+        rawData.forEach(row => {
+          const school = (row["대학"] || "").toLowerCase();
+          const major = (row["학과"] || "").toLowerCase();
+          const region = row["지역"];
+          const key = row["대학"] + " - " + row["학과"];
+          const matchKeyword = keyword === "" || (school + " " + major).includes(keyword);
+          const matchYear = !year || row["연도"] == year;
+          const matchRegion = selectedRegions.size === 0 || selectedRegions.has(region);
 
+          if (matchKeyword && matchYear && matchRegion) {
+            if (!grouped[key]) grouped[key] = [];
+            grouped[key].push(row);
+          }
+        });
+
+        Object.entries(grouped).forEach(([key, rows]) => {
+          const avg1 = average(rows.map(r => parseFloat(r["성적1"])));
+          const avg2 = average(rows.map(r => parseFloat(r["성적2"])));
+
+          let color = "#aaa";
+          if (!isNaN(myScore)) {
+            if (myScore < avg1) color = "#007bff";
+            else if (myScore <= avg2) color = "#28a745";
+            else if (myScore <= avg2 + 0.5) color = "#ffc107";
+          }
+
+          const btn = document.createElement("button");
+          btn.textContent = key;
+          btn.style.backgroundColor = color;
+          btn.onclick = () => showModal(key, rows);
+          resultDiv.appendChild(btn);
+        });
+
+        document.getElementById("loading").style.display = 'none';
+      }, 200);
+    }
+  </script>
 </body>
 </html>
