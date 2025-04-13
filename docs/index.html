@@ -111,7 +111,7 @@
   }
 
   function fetchData() {
-    fetch('https://script.google.com/macros/s/AKfycbXXXXXXX/exec')  // <-- JSON API 주소로 교체
+    fetch("data/major_data.json") 
       .then(res => res.json())
       .then(data => {
         jsonData = data;
